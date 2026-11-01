@@ -27,3 +27,5 @@ In this repo there is:
 [Enable RTOS Logs](enable_logs/) Enable RTOS logging to sd card on the camera.
 
 [Camera Controller](camera_controller) python script to control one or more cameras over wifi.
+
+[Yi 4k firmware porting tool](tools/yi4k_port/) find the mod addresses for a Yi 4k firmware not listed here (e.g. 1.10.99) from a memory dump.
