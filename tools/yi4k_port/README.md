@@ -23,19 +23,38 @@ Make sure there is no other `autoexec.ash` mod on the SD card. Create an
 by an empty line, with unix line endings:
 
 ```
-savebin c:\dump.bin 0xA0000000 l 16777216
+savebin c:\dump.bin 0xA0600000 l 2097152
 ```
 
 Boot the camera, wait a few seconds, turn it off. You will find `dump.bin`
-(16 MB) on the SD card. **Remove `autoexec.ash` from the SD card.**
+(2 MB) on the SD card. **Remove `autoexec.ash` from the SD card.**
 
 Dumping is read-only and does not change anything on the camera.
+
+The 2 MB starting at `0xA0600000` contain the tables on every known firmware.
+Do not use the full 16 MB dump at `0xA0000000` from the
+[autoexec.ash notes](../../autoexec.ash/): on firmware 1.10.99 it froze the
+camera at boot.
+
+### If the camera freezes at boot
+
+The screen stays black and the camera does not turn off: take the battery out,
+put the SD card in a computer and delete `autoexec.ash`. The camera will boot
+normally again. Then try a smaller dump, e.g. 64 KB around the 1.10.9 table:
+
+```
+savebin c:\dump.bin 0xA06D0000 l 65536
+```
+
+and run the tool with `--base 0xA06D0000`.
 
 ## 2. Find the addresses
 
 ```
 python3 find_addresses.py dump.bin 1.10.99
 ```
+
+If you dumped from another start address, add `--base <address>`.
 
 If every check passes, the folder `out_1.10.99` contains:
 

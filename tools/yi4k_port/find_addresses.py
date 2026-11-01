@@ -6,7 +6,11 @@ is not in this repository (e.g. 1.10.99), using a RAM dump of the camera.
 How to get the dump: put an autoexec.ash containing only this line (plus an
 empty line at the end, unix line endings) on the SD card and boot the camera:
 
-    savebin c:\\dump.bin 0xA0000000 l 16777216
+    savebin c:\\dump.bin 0xA0600000 l 2097152
+
+(2 MB starting at 0xA0600000: it contains the tables on every known firmware.
+A full 16 MB dump at 0xA0000000 froze a camera on firmware 1.10.99. If you use
+another start address, pass it with --base.)
 
 Then remove autoexec.ash from the SD card and copy dump.bin to your computer.
 The dump must be taken WITHOUT any mod active, so that the tables contain the
@@ -29,7 +33,7 @@ import re
 import struct
 import sys
 
-DUMP_BASE = 0xA0000000
+DUMP_BASE = 0xA0600000  # start address of the dump, set with --base
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 REF_VERSION = "1.10.9"
 REF_BITRATE = os.path.join(REPO, "bitrate", "4k", REF_VERSION, "autoexec.ash")
@@ -104,10 +108,14 @@ def render(lines, addr_map, title_from, title_to):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("dump", help="dump.bin taken from the camera at 0xA0000000")
+    ap.add_argument("dump", help="dump.bin taken from the camera")
+    ap.add_argument("--base", default="0xA0600000",
+                    help="memory address the dump starts at (default 0xA0600000)")
     ap.add_argument("version", help="firmware version of the camera, e.g. 1.10.99")
     ap.add_argument("--out", default=None, help="output directory (default: ./out_<version>)")
     args = ap.parse_args()
+    global DUMP_BASE
+    DUMP_BASE = int(args.base, 0)
 
     with open(args.dump, "rb") as f:
         dump = f.read()
