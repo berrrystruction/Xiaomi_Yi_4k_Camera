@@ -142,6 +142,12 @@ def main():
     lo = new_table_start - AUDIO_WINDOW[1]
     hi = new_table_start - AUDIO_WINDOW[0]
     audio_hits = [a for a in range(lo, hi, 4) if read_u32(dump, a) == AUDIO_STOCK]
+    # The firmware has more than one 128 kb/s audio entry close to the table
+    # (e.g. 1.10.99 has one at -0x384 and one at -0x368): when that happens,
+    # take the one at the same distance as in the reference firmware.
+    ref_audio = new_table_start - (table[0][0] - audio[1])
+    if len(audio_hits) > 1 and ref_audio in audio_hits:
+        audio_hits = [ref_audio]
     if len(audio_hits) != 1:
         sys.exit("FAILED: audio bitrate not found unambiguously (%d candidates)" % len(audio_hits))
     new_audio = audio_hits[0]
